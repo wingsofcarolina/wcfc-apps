@@ -1,0 +1,80 @@
+name: Label new issues
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Parse form and add labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body;
+
+            // Convert GitHub issue form body to a JSON-like object
+            function parseIssueForm(body) {
+              const sections = body.split(/^### /m).slice(1);
+              const result = {};
+              for (const section of sections) {
+                const [question, ...rest] = section.split("\n");
+                let answer = rest.join("\n").trim();
+
+                // Normalize checkbox answers
+                if (answer.includes("- [x]")) {
+                  const checked = answer
+                    .split("\n")
+                    .filter(line => line.startsWith("- [x]"))
+                    .map(line => line.replace("- [x]", "").trim());
+                  answer = checked;
+                } else if (answer.includes("- [ ]")) {
+                  answer = [];
+                }
+                result[question.trim()] = answer;
+              }
+              return result;
+            }
+
+            const answers = parseIssueForm(body);
+            console.log("Parsed answers:", answers);
+
+            // Always add "new"
+            const labels = ["new"];
+
+            // Map issue type → labels
+            if (answers["What type of issue is this?"] === "Bug") {
+              labels.push("bug");
+            } else if (answers["What type of issue is this?"] === "Enhancement") {
+              labels.push("enhancement");
+            } else if (answers["What type of issue is this?"] === "Question") {
+              labels.push("question");
+            }
+
+            // Priority (checkboxes are arrays)
+            if (answers["Priority"].includes("High priority")) {
+              labels.push("high-priority");
+            }
+
+            // App selection → labels
+            switch (answers["Which app is this about?"]) {
+              case "wcfc-quiz":
+                labels.push("wcfc-quiz");
+                break;
+              case "wcfc-manuals":
+                labels.push("wcfc-manuals");
+                break;
+              case "wcfc-groundschool":
+                labels.push("wcfc-groundschool");
+                break;
+            }
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels
+            });
+

@@ -1,0 +1,58 @@
+name: WCFC-Apps Issue
+description: Report an issue with one of the WCFC apps
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## **Important:** Do not use the public issue tracker to report security issues.
+        If you have found a security vulnerability in one of the WCFC apps, please report it privately here:
+        https://github.com/wingsofcarolina/wcfc-apps/security/advisories/new.
+
+  - type: dropdown
+    id: app
+    attributes:
+      label: Which app is this about?
+      description: Choose the app where you observed this bug or want the enhancement.
+      options:
+        - none/multiple/other
+        - wcfc-quiz
+        - wcfc-manuals
+        - wcfc-groundschool
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: What type of issue is this?
+      description: |
+        * **Bug**: Something is broken — the app is not working as intended, produces errors, or behaves incorrectly.  
+        * **Enhancement**: A feature request, improvement, or change to existing functionality that would make the app better. 
+        * **Question**: A general inquiry, or something else that doesn't fit the above categories. 
+      options:
+        - Bug
+        - Enhancement
+        - Question
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: priority
+    attributes:
+      label: Priority
+      description: |
+        Check this box if the issue is urgent (e.g. blocking training, safety-related, or makes the app unusable).  
+        Otherwise, leave it unchecked.
+      options:
+        - label: High priority
+          required: false
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Provide as much detail as possible (steps to reproduce, expected behavior, screenshots if relevant).
+      placeholder: "Describe what happened, or what you'd like to see..."
+    validations:
+      required: true
+
